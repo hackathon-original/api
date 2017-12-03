@@ -45,6 +45,30 @@ let resources = {
         method: 'get',
         path: '/rewards/v1/balance'
     },
+    'rewards/history': {
+        method: 'get',
+        path: '/rewards/v1/transaction-history'
+    },
+    'cards': {
+        method: 'get',
+        path: '/cards/v1'
+    },
+    'cards/detail': {
+        method: 'get',
+        path: '/cards/v1/0001'
+    },
+    'cards/invoices/open': {
+        method: 'get',
+        path: '/cards/v1/0001/invoices/open'
+    },
+    'cards/invoices/closed': {
+        method: 'get',
+        path: '/cards/v1/0001/invoices/closed'
+    },
+    'cards/invoices/history': {
+        method: 'get',
+        path: '/cards/v1/0001/invoices/history'
+    },
     history: {
         method: 'get',
         path: '/accounts/v1/transaction-history'
