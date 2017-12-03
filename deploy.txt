@@ -1,0 +1,2 @@
+now --public
+now alias https://openbanking-ihjngkozux.now.sh/ hackathon-btc.now.sh

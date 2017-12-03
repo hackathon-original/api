@@ -33,7 +33,13 @@
             <div>
                 <button class="btn btn-primary btn-block" onclick="window.open('/oauth')">Login OAuth</button>
                 <button class="btn btn-primary btn-block" ng-click="call('balance')">Saldo</button>
-                <button class="btn btn-primary btn-block" ng-click="call('rewards')">rewards</button>
+                <button class="btn btn-primary btn-block" ng-click="call('rewards')">Rewards</button>
+                <button class="btn btn-primary btn-block" ng-click="call('rewards/history')">Rewards: Histórico</button>
+                <button class="btn btn-primary btn-block" ng-click="call('cards')">Cartões: Lista</button>
+                <button class="btn btn-primary btn-block" ng-click="call('cards/detail')">Cartões: Detalhe</button>
+                <button class="btn btn-primary btn-block" ng-click="call('cards/invoices/open')">Cartões: Fatura Aberta</button>
+                <button class="btn btn-primary btn-block" ng-click="call('cards/invoices/closed')">Cartões: Fatura Fechada</button>
+                <button class="btn btn-primary btn-block" ng-click="call('cards/invoices/history')">Cartões: Fatura Histórico</button>
                 <button class="btn btn-primary btn-block" ng-click="call('favored_accounts')">Favorecidos</button>
                 <button class="btn btn-primary btn-block" ng-click="call('tef')">TEF</button>
                 <button class="btn btn-primary btn-block" ng-click="call('tef_confirm')">TEF PUT</button>
