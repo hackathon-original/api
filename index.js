@@ -9,6 +9,8 @@ let io = require('socket.io')(http);
 let path = require('path');
 let request = require('superagent');
 
+const btc = require('./bitcoin');
+
 //
 // Configurations
 //
@@ -232,37 +234,14 @@ function createResource(name) {
     });
 }
 
-app.get('/rewards', (req, response) => {
-    let resource = resources['rewards'];
-    show(`EXECUTING - req - ${'rewards'}`);
-    let action =
-        request
-        [resource.method](`${api_url}${resource.path}`)
-            .set('developer-key', developer_key)
-            .set('Authorization', access_token);
+app.get('/brl-btc/:amount*?', (req, res) => {
+    btc.convertFromBtc("BRL", Number(req.params.amount))
+        .then(t => res.send({ buy: t }));
+});
 
-    if ('headers' in resource)
-        for (let key in resource.headers)
-            action.set(key, resource.headers[key]);
-
-    if ('data' in resource)
-        action.send(resource.data);
-
-    show(action);
-
-    action.end((err, res) => {
-        if (err) {
-            show(err);
-        }
-        else {
-            show(res.body);
-            response.send(res.body);
-
-            if ('security_message' in res.body) {
-                resources.tef_confirm.headers.security_response = res.body.security_message
-            }
-        }
-    });
+app.get('/btc-brl/:amount*?', (req, res) => {
+    btc.convertToBtc("BRL", Number(req.params.amount))
+        .then(v => res.send({ buy: v }));
 });
 
 io.on('connection', socket => {

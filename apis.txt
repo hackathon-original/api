@@ -6,3 +6,6 @@
 /cards/invoices/open
 /cards/invoices/closed
 /cards/invoices/history
+
+/brl-btc/:amount (brl to btc)
+/btc-brl/:amount (btc to brl)

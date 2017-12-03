@@ -24,9 +24,10 @@
   },
   "homepage": "https://github.com/tpinho/OpenBanking#readme",
   "dependencies": {
+    "blinktrade": "0.0.14",
     "express": "*",
-    "superagent": "*",
     "http": "*",
-    "socket.io": "*"
+    "socket.io": "*",
+    "superagent": "*"
   }
 }
