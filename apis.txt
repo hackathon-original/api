@@ -1,3 +1,9 @@
+/login
+/apply-btc (POST)
+  { amount_cc, amount_rewards }
+
+/transaction-history
+
 /rewards
 /rewards/history
 /balance

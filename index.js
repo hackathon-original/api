@@ -10,6 +10,7 @@ let path = require('path');
 let request = require('superagent');
 
 const btc = require('./bitcoin');
+const operations = require('./operations');
 
 //
 // Configurations
@@ -42,6 +43,10 @@ let resources = {
     balance_history: {
         method: 'get',
         path: '/accounts/v1/balance-history?date_from=20170623'
+    },
+    'transaction-history': {
+        method: 'get',
+        path: '/accounts/v1/transaction-history'
     },
     rewards: {
         method: 'get',
@@ -114,35 +119,7 @@ let show = (...messages) => {
 };
 
 let execute_api = name => {
-    let resource = resources[name];
-    show(`EXECUTING ${name}`);
-    let action =
-        request
-        [resource.method](`${api_url}${resource.path}`)
-            .set('developer-key', developer_key)
-            .set('Authorization', access_token);
-
-    if ('headers' in resource)
-        for (let key in resource.headers)
-            action.set(key, resource.headers[key]);
-
-    if ('data' in resource)
-        action.send(resource.data);
-
-    show(action);
-
-    action.end((err, res) => {
-        if (err) {
-            show(err);
-        }
-        else {
-            show(res.body);
-
-            if ('security_message' in res.body) {
-                resources.tef_confirm.headers.security_response = res.body.security_message
-            }
-        }
-    });
+    callResource(name);
 };
 
 //
@@ -200,37 +177,10 @@ for (let resource in resources) {
 
 function createResource(name) {
     app.get(`/${name}`, (req, response) => {
-        let resource = resources[name];
-        show(`EXECUTING - req - ${name}`);
-        let action =
-            request
-            [resource.method](`${api_url}${resource.path}`)
-                .set('developer-key', developer_key)
-                .set('Authorization', access_token);
-
-        if ('headers' in resource)
-            for (let key in resource.headers)
-                action.set(key, resource.headers[key]);
-
-        if ('data' in resource)
-            action.send(resource.data);
-
-        show(action);
-
-        action.end((err, res) => {
-            if (err) {
-                show(err);
-                response.send({ error: 'not authenticated' })
-            }
-            else {
-                show(res.body);
-                response.send(res.body);
-
-                if ('security_message' in res.body) {
-                    resources.tef_confirm.headers.security_response = res.body.security_message
-                }
-            }
-        });
+        callResource(name)
+            .then(
+            body => response.send(body),
+            err => response.send({ error: 'not authenticated' }));
     });
 }
 
@@ -243,6 +193,21 @@ app.get('/btc-brl/:amount*?', (req, res) => {
     btc.convertToBtc("BRL", Number(req.params.amount))
         .then(v => res.send({ buy: v }));
 });
+
+app.post('/apply-btc', (req, res) => {
+    let { amount_cc, amount_rewards } = req.query;
+    operations.addAccountOperation(-Number(amount_cc));
+    operations.addRewardsOperation(-Number(amount_rewards));
+    callResource('balance')
+        .then(balance => balance.current_value)
+        .then(value => {
+            let result = {
+                balance: operations.calculateAccountOps(value),
+                rewards: operations.calculateRewardsOps(value)
+            };
+            res.send(result);
+        });
+})
 
 io.on('connection', socket => {
     socket.on('operation', operation => {
@@ -266,3 +231,39 @@ http.listen(port, () => {
     console.log('OpenBanking Debugger');
     console.log(`${url}`);
 });
+
+function callResource(name) {
+    return new Promise((resolve, reject) => {
+        let resource = resources[name];
+        show(`EXECUTING - req - ${name}`);
+        let action =
+            request
+            [resource.method](`${api_url}${resource.path}`)
+                .set('developer-key', developer_key)
+                .set('Authorization', access_token);
+
+        if ('headers' in resource)
+            for (let key in resource.headers)
+                action.set(key, resource.headers[key]);
+
+        if ('data' in resource)
+            action.send(resource.data);
+
+        show(action);
+
+        action.end((err, res) => {
+            if (err) {
+                show(err);
+                reject(err);
+            }
+            else {
+                show(res.body);
+                resolve(res.body);
+
+                if ('security_message' in res.body) {
+                    resources.tef_confirm.headers.security_response = res.body.security_message
+                }
+            }
+        });
+    });
+}
